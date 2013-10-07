@@ -118,7 +118,7 @@ class login extends page {
 	}
 	
 	function post() {
-		//print_r($_POST);
+		print_r($_POST);
 		
 	}
 	
