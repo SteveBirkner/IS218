@@ -4,6 +4,7 @@
      
         <title>PHP Bank Site</title>
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+        
         <link rel="stylesheet" href="main.css" type="text/css"/>
       
     <body>
@@ -27,7 +28,7 @@
 				                if (isset($_REQUEST['arg'])){
 									$arg = $_REQUEST['arg'];
 								}
-								//$arg = $_REQUEST['arg'];
+								$arg = $_REQUEST['arg'];
 								$page = new $page($arg);
 				
 				        }
@@ -51,7 +52,7 @@
 					public $content;
 					
 					function menu() {
-						$menu = '<ul class="nav nav-pills">
+						$menu = '<div class="nbar"><ul class="nav nav-pills">
 								    <li>
 								        <a href="./index.php">Homepage</a>
 								    </li>
@@ -67,7 +68,10 @@
 								    <li>
 								        <a href="./index.php?page=newTran">New Transaction</a>
 								    </li>
-								</ul>';
+								    <li>
+								        <a href="./index.php?page=logout">Logout</a>
+								    </li>
+								</ul></div>';
 					
 					return $menu;
 					}
@@ -105,9 +109,23 @@
 				class homepage extends page {
 					
 					function get($arg) {
+								
+							$arg = $_REQUEST['arg'];
 							$this->content .= $this->menu();
+							$this->content .= $this->emess($arg);
+						
 						
 					
+					}
+
+					function emess($arg) {
+						
+						if($arg == 1){
+							return '<p>Sorry, Your Login Info Was Incorrect!</p>';
+						}
+						
+						
+						
 					}
 				
 					
@@ -142,7 +160,30 @@
 					}
 					
 					function post() {
-						print_r($_POST);
+						if($_POST['username']=='steve' && $_POST['password']=='password') {
+							/* session_start();
+							$_SESSION['usersname'] = 'Steve'; */
+							
+							$sess = new session_user;
+							$sess->set('Steven Birkner');
+							
+							header("Location: http://192.168.56.101/index.php?page=transact"); //tables
+						}
+						else if($_POST['username']=='gob' && $_POST['password']=='pass') {
+							session_start();
+							$_SESSION['usersname'] = 'Gob';
+							header("Location: http://192.168.56.101/index.php?page=transact");
+							
+						}
+						else if($_POST['username']=='dbz' && $_POST['password']=='pass') {
+							session_start();
+							$_SESSION['usersname'] = 'Gotenks';
+							header("Location: http://192.168.56.101/index.php?page=transact");
+							
+						}
+						else {
+							header("Location: http://192.168.56.101/index.php?page=homepage&arg=1"); //homepage
+						}
 						
 					}
 					
@@ -208,6 +249,7 @@
 				
 				class transact extends page {
 					function get($arg){
+						session_start();
 						$this->content .= $this->menu();
 						$this->content .= $this->transTable($arg);
 					}
@@ -228,8 +270,15 @@
 										</tr>';
 						
 						$transRows .= $new;
+						/* if(isset($_SESSION['usersname'])) {
+							$user = $_SESSION['usersname'];
+						}else {
+							$user = NULL;
+						} */
 						
-						$transTable = '<table border="1">' . $transRows . '</table><br>
+						$sess = new session_user;
+						$user = $sess->getName();
+						$transTable = 'Hello! ' . $user . '<table border="1">' . $transRows . '</table><br>
 						<a href="./index.php?page=newTran"> New Transaction </a>';
 						
 						return $transTable;
@@ -280,6 +329,67 @@
 						
 					}
 				}
+				
+				class logout extends page {
+					
+					function __construct() {
+					
+						$sess = new session_user;
+						$sess->resetName();
+						$sess->logout();
+						
+						header("Location: http://192.168.56.101/index.php");
+						
+					}
+					
+					
+				}
+				
+				class session {
+		
+					public function __construct() {
+						session_start();
+					}
+					
+					public function logout() {
+						session_destroy();
+							
+					}
+					
+					
+				}
+				
+				class session_user extends session {
+					
+					
+					public function set($name){
+						
+						$_SESSION['username'] = $name;
+						
+					}
+
+					public function getName() {
+						
+						if(isset($_SESSION['usersname'])) {
+							$user = $_SESSION['usersname'];
+						}else {
+							$user = NULL;
+						}
+						
+						return $user;
+						
+					}
+
+					public function resetName(){
+						
+						unset($_SESSION['usersname']);
+					}
+					
+					
+				
+					
+				}
+				
 				
 				
 				
